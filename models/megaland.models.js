@@ -18,6 +18,7 @@ const Property = function (property) {
   this.property_bathroom = property.property_bathroom;
   this.property_room_count = property.property_room_count;
   this.property_parking_space = property.property_parking_space;
+  this.property_enable = property.property_enable;
 
   this.property_attic = property.property_attic;
   this.property_balcony = property.property_balcony;
@@ -43,7 +44,44 @@ const Property = function (property) {
   this.property_railway = property.property_railway;
   this.property_shopping = property.property_shopping;
   this.property_universities = property.property_universities;
+
+  this.property_main_image = property.property_main_image; 
 };
+
+// const imageBuffer = Buffer.from(propertyData.value.property_main_image);
+// const maxSize = 16 * 1024 * 1024;
+// let quality = 80;
+// let resizedImageBuffer = null;
+
+// function resizeAndCheckSize() {
+//   return Jimp.read(originalImageBuffer)
+//     .then((image) => {
+//       // Resize the image with the current quality value
+//       return image.resize(300, Jimp.AUTO).quality(quality).getBufferAsync(Jimp.AUTO);
+//     })
+//     .then((buffer) => {
+//       // Check if the resized image fits within the size limit
+//       if (buffer.length <= maxSize) {
+//         // Image is within the size limit, save it to the database
+//         resizedImageBuffer = buffer;
+//       } else {
+//         // Reduce the quality and try again
+//         quality -= 5; // You can adjust the step size as needed
+
+//         if (quality >= 5) {
+//           // Continue the loop until quality is too low or the size is within the limit
+//           return resizeAndCheckSize();
+//         } else {
+//           // Quality is too low, handle accordingly (e.g., log an error)
+//           console.error("Image quality is too low to meet the size limit");
+//         }
+//       }
+//     });
+// }
+
+// function resize(image){
+  
+// }
 
 Property.addProperty = (newProperty, result) => {
   // Step 1: Insert into property_table
@@ -67,6 +105,7 @@ Property.addProperty = (newProperty, result) => {
       property_bathroom: newProperty.property_bathroom,
       property_room_count: newProperty.property_room_count,
       property_parking_space: newProperty.property_parking_space,
+      property_enable: newProperty.property_enable,
     },
     (err, res) => {
       if (err) {
@@ -126,6 +165,21 @@ Property.addProperty = (newProperty, result) => {
                 return;
               }
 
+              sql.query(
+                "INSERT INTO property_images_table (property_id, property_main_image) VALUES (?, ?)",
+                {
+                  property_id:propertyId,
+                  property_main_image:newProperty.property_main_image,
+                },
+                (err,res) => {
+                  if(err){
+                    console.log("erro:",err);
+                    result(err,null);
+                    return;
+                  }
+                }
+              );
+
               // Step 5: Return the result
               console.log("created property: ", {
                 property_id: propertyId,
@@ -141,7 +195,7 @@ Property.addProperty = (newProperty, result) => {
 };
 Property.getLatestProperty = (result) => {
   var data = {};
-
+  
   // Query for property_table
   sql.query(
     "SELECT property_name, property_price, property_bedroom, property_bathroom, property_area, property_city FROM property_table ORDER BY property_id DESC LIMIT 6",

@@ -25,6 +25,7 @@ exports.addProperty = (req, res) => {
         property_bathroom: req.body.property_bathroom,
         property_room_count: req.body.property_room_count,
         property_parking_space: req.body.property_parking_space,
+        property_enable:req.body.property_enable,
 
         property_attic: req.body.property_attic,
         property_balcony:req.body.property_balcony,
@@ -49,7 +50,9 @@ exports.addProperty = (req, res) => {
         property_patroltank:req.body.property_patroltank,
         property_railway:req.body.property_railway,
         property_shopping:req.body.property_shopping,
-        property_universities:req.body.property_universities
+        property_universities:req.body.property_universities,
+
+        property_main_image:req.body.property_main_image
         || false
     });
 
