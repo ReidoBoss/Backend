@@ -1,9 +1,11 @@
 module.exports = app => {
     const properties = require("../controllers/megaland.controllers.js");
+    const agents =require("../controllers/megaland.controllers.js");
     var router = require("express").Router();
 
-    router.post("/",properties.addProperty);
+    router.post("/properties",properties.addProperty);
+    router.post("/agents",agents.addAgent);
     router.get("/",properties.getLatestProperty);
-
-    app.use('/api/properties',router);
+    router.get("/getAgents",properties.getAgents);
+    app.use('/api',router);
 };

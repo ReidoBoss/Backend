@@ -1,6 +1,27 @@
 const sql = require("../config/config.js");
 const Jimp = require("jimp");
 
+const Agent = function (agent) {
+  this.agent_id = agent.agent_id;
+  this.agent_name = agent.agent_name;
+  this.agent_image = agent.agent_image;
+  this.agent_description = agent.agent_description;
+  this.agent_position = agent.agent_position;
+  this.agent_email = agent.agent_email;
+  this.agent_address = agent.agent_address;
+  this.agent_contact_no = agent.agent_contact_no;
+  this.agent_city = agent.agent_city;
+  this.agent_country = agent.agent_country;
+  this.agent_city = agent.agent_city;
+  this.agent_region = agent.agent_region;
+  this.agent_username = agent.agent_username;
+  this.agent_password = agent.agent_password;
+  this.agent_fb = agent.agent_fb;
+  this.agent_x = agent.agent_x;
+  this.agent_insta = agent.agent_insta;
+  this.agent_number_of_property = agent.agent_number_of_property;
+};
+
 const Property = function (property) {
   this.property_name = property.property_name;
   this.property_description = property.property_description;
@@ -50,6 +71,45 @@ const Property = function (property) {
   this.property_main_image = property.property_main_image;
 };
 
+Agent.addAgent = (newAgent, result) => {
+  sql.query(
+    "INSERT INTO agent_table SET ?",
+    {
+      agent_id: newAgent.agent_id,
+      agent_name: newAgent.agent_name,
+      agent_image: newAgent.agent_image,
+      agent_description: newAgent.agent_description,
+      agent_position: newAgent.agent_position,
+      agent_email: newAgent.agent_email,
+      agent_address: newAgent.agent_address,
+      agent_contact_no: newAgent.agent_contact_no,
+      agent_city: newAgent.agent_city,
+      agent_country: newAgent.agent_country,
+      agent_city: newAgent.agent_city,
+      agent_region: newAgent.agent_region,
+      agent_username: newAgent.agent_username,
+      agent_password: newAgent.agent_password,
+      agent_fb: newAgent.agent_fb,
+      agent_x: newAgent.agent_x,
+      agent_insta: newAgent.agent_insta,
+      agent_number_of_property: newAgent.agent_number_of_property,
+    },
+    (error, results) => {
+      if (error) {
+        console.log("error: ", error);
+        result(error, null);
+        return;
+      }
+
+      console.log("created agent: ", {
+        agent_id: result.insertId,
+        ...newAgent,
+      });
+      result(null, { agent_id: results.insertId, ...newAgent });
+    }
+  );
+};
+
 // function adjust(imageFile) {
 //   image = Buffer.from(imageFile, 'base64');
 //   let size = image.length / (1024 * 1024);
@@ -74,6 +134,7 @@ Property.addProperty = (newProperty, result) => {
       property_type: newProperty.property_type,
       property_price: newProperty.property_price,
       property_category: newProperty.property_category,
+      property_local_area: newProperty.property_local_area,
       property_country: newProperty.property_country,
       property_region: newProperty.property_region,
       property_city: newProperty.property_city,
@@ -236,4 +297,26 @@ Property.getLatestProperty = (result) => {
   );
 };
 
-module.exports = Property;
+Agent.getAgents = (result) => {
+  sql.query(
+    "SELECT agent_name, agent_description,agent_position FROM agent_table",
+    (err, res) => {
+      if (err) {
+        console.log("Error in executing property_nearest_table query: ", err);
+        result(err, null);
+        return;
+      }
+      const agentDetails = res.map((row)=>({
+        agent_name : row.agent_name,
+        agent_description : row.agent_description,
+        agent_position : row.agent_position,
+      }));
+
+      console.log(...agentDetails);
+      result(null,agentDetails);
+    }
+  );
+};
+
+module.exports.Property = Property;
+module.exports.Agent = Agent;
