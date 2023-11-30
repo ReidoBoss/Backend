@@ -1,4 +1,5 @@
 const sql = require("../config/config.js");
+const Jimp = require("jimp");
 
 const Property = function (property) {
   this.property_name = property.property_name;
@@ -18,6 +19,7 @@ const Property = function (property) {
   this.property_bathroom = property.property_bathroom;
   this.property_room_count = property.property_room_count;
   this.property_parking_space = property.property_parking_space;
+  this.property_local_area = property.property_local_area;
   this.property_enable = property.property_enable;
 
   this.property_attic = property.property_attic;
@@ -45,46 +47,22 @@ const Property = function (property) {
   this.property_shopping = property.property_shopping;
   this.property_universities = property.property_universities;
 
-  this.property_main_image = property.property_main_image; 
+  this.property_main_image = property.property_main_image;
 };
 
-// const imageBuffer = Buffer.from(propertyData.value.property_main_image);
-// const maxSize = 16 * 1024 * 1024;
-// let quality = 80;
-// let resizedImageBuffer = null;
-
-// function resizeAndCheckSize() {
-//   return Jimp.read(originalImageBuffer)
-//     .then((image) => {
-//       // Resize the image with the current quality value
-//       return image.resize(300, Jimp.AUTO).quality(quality).getBufferAsync(Jimp.AUTO);
-//     })
-//     .then((buffer) => {
-//       // Check if the resized image fits within the size limit
-//       if (buffer.length <= maxSize) {
-//         // Image is within the size limit, save it to the database
-//         resizedImageBuffer = buffer;
-//       } else {
-//         // Reduce the quality and try again
-//         quality -= 5; // You can adjust the step size as needed
-
-//         if (quality >= 5) {
-//           // Continue the loop until quality is too low or the size is within the limit
-//           return resizeAndCheckSize();
-//         } else {
-//           // Quality is too low, handle accordingly (e.g., log an error)
-//           console.error("Image quality is too low to meet the size limit");
-//         }
-//       }
-//     });
-// }
-
-// function resize(image){
-  
+// function adjust(imageFile) {
+//   image = Buffer.from(imageFile, 'base64');
+//   let size = image.length / (1024 * 1024);
+//   let quality = 100;
+//   const img = Jimp.read(image);
+//   while (size > 16 && quality > 0) {
+//     quality -= 3;
+//     img.quality(quality);
+//   }
+//   return img;
 // }
 
 Property.addProperty = (newProperty, result) => {
-  // Step 1: Insert into property_table
   sql.query(
     "INSERT INTO property_table SET ?",
     {
@@ -165,20 +143,21 @@ Property.addProperty = (newProperty, result) => {
                 return;
               }
 
-              sql.query(
-                "INSERT INTO property_images_table (property_id, property_main_image) VALUES (?, ?)",
-                {
-                  property_id:propertyId,
-                  property_main_image:newProperty.property_main_image,
-                },
-                (err,res) => {
-                  if(err){
-                    console.log("erro:",err);
-                    result(err,null);
-                    return;
-                  }
-                }
-              );
+              // let property_main_img = adjust(newProperty.property_main_image);
+              // sql.query(
+              //   "INSERT INTO property_images_table (property_id, property_main_image) VALUES (?, ?)",
+              //   {
+              //     property_id:propertyId,
+              //     property_main_image:property_main_img,
+              //   },
+              //   (err,res) => {
+              //     if(err){
+              //       console.log("erro:",err);
+              //       result(err,null);
+              //       return;
+              //     }
+              //   }
+              // );
 
               // Step 5: Return the result
               console.log("created property: ", {
@@ -195,10 +174,10 @@ Property.addProperty = (newProperty, result) => {
 };
 Property.getLatestProperty = (result) => {
   var data = {};
-  
+
   // Query for property_table
   sql.query(
-    "SELECT property_name, property_price, property_bedroom, property_bathroom, property_area, property_city FROM property_table ORDER BY property_id DESC LIMIT 6",
+    "SELECT property_name, property_price, property_bedroom, property_bathroom, property_area, property_city , property_local_area, property_type, property_category FROM property_table ORDER BY property_id DESC LIMIT 6",
     (error, queryResult) => {
       if (error) {
         console.log("Error in executing property_table query: ", error);
@@ -213,82 +192,48 @@ Property.getLatestProperty = (result) => {
         property_bathroom: row.property_bathroom,
         property_area: row.property_area,
         property_city: row.property_city,
+        property_local_area: row.property_local_area,
+        property_type: row.property_type,
+        property_category: row.property_category,
       }));
 
       data = { ...propertyDetails };
 
-      // Query for property_amenities_table
+      // Query for property_nearest_table
       sql.query(
-        "SELECT * FROM property_amenities_table ORDER BY property_id DESC LIMIT 6",
-        (error, amenitiesResult) => {
+        "SELECT * FROM property_nearest_table ORDER BY property_id DESC LIMIT 6",
+        (error, nearestResult) => {
           if (error) {
-            console.log("Error in executing property_amenities_table query: ", error);
+            console.log(
+              "Error in executing property_nearest_table query: ",
+              error
+            );
             result(error, null);
             return;
           }
 
-          // Merge amenities into propertyDetails
+          // Merge nearest into propertyDetails
           propertyDetails.forEach((property, index) => {
-            const amenitiesRow = amenitiesResult[index];
+            const nearestRow = nearestResult[index];
             Object.assign(property, {
-              property_attic: amenitiesRow.property_attic,
-              property_balcony: amenitiesRow.property_balcony,
-              property_deck: amenitiesRow.property_deck,
-              property_fenced_yard: amenitiesRow.property_fenced_yard,
-              property_fireplace: amenitiesRow.property_fireplace,
-              property_frontyard: amenitiesRow.property_frontyard,
-              property_gasheat: amenitiesRow.property_gasheat,
-              property_gym: amenitiesRow.property_gym,
-              property_lakeview: amenitiesRow.property_lakeview,
-              property_pond: amenitiesRow.property_pond,
-              property_pool: amenitiesRow.property_pool,
-              property_recreation: amenitiesRow.property_recreation,
-              property_sprinklers: amenitiesRow.property_sprinklers,
-              property_storage: amenitiesRow.property_storage,
-              property_washer: amenitiesRow.property_washer,
-              property_winecellar: amenitiesRow.property_winecellar,
+              property_airport: nearestRow.property_airport,
+              property_busstand: nearestRow.property_busstand,
+              property_hospital: nearestRow.property_hospital,
+              property_patroltank: nearestRow.property_patroltank,
+              property_railway: nearestRow.property_railway,
+              property_shopping: nearestRow.property_shopping,
+              property_universities: nearestRow.property_universities,
             });
           });
 
-          // Query for property_nearest_table
-          sql.query(
-            "SELECT * FROM property_nearest_table ORDER BY property_id DESC LIMIT 6",
-            (error, nearestResult) => {
-              if (error) {
-                console.log("Error in executing property_nearest_table query: ", error);
-                result(error, null);
-                return;
-              }
-
-              // Merge nearest into propertyDetails
-              propertyDetails.forEach((property, index) => {
-                const nearestRow = nearestResult[index];
-                Object.assign(property, {
-                  property_airport: nearestRow.property_airport,
-                  property_busstand: nearestRow.property_busstand,
-                  property_hospital: nearestRow.property_hospital,
-                  property_patroltank: nearestRow.property_patroltank,
-                  property_railway: nearestRow.property_railway,
-                  property_shopping: nearestRow.property_shopping,
-                  property_universities: nearestRow.property_universities,
-                });
-              });
-
-              // Return the object with propertyDetails
-              data.propertyDetails;
-              console.log(data);
-              result(null, data);
-            }
-          );
+          // Return the object with propertyDetails
+          data.propertyDetails;
+          console.log(data);
+          result(null, data);
         }
       );
     }
   );
 };
-
-
-
-
-
 
 module.exports = Property;

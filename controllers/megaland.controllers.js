@@ -25,6 +25,7 @@ exports.addProperty = (req, res) => {
         property_bathroom: req.body.property_bathroom,
         property_room_count: req.body.property_room_count,
         property_parking_space: req.body.property_parking_space,
+        property_local_area: req.body.property_local_area,
         property_enable:req.body.property_enable,
 
         property_attic: req.body.property_attic,
