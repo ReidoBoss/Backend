@@ -110,17 +110,17 @@ Agent.addAgent = (newAgent, result) => {
   );
 };
 
-// function adjust(imageFile) {
-//   image = Buffer.from(imageFile, 'base64');
-//   let size = image.length / (1024 * 1024);
-//   let quality = 100;
-//   const img = Jimp.read(image);
-//   while (size > 16 && quality > 0) {
-//     quality -= 3;
-//     img.quality(quality);
-//   }
-//   return img;
-// }
+function adjust(imageFile) {
+  image = Buffer.from(imageFile, 'base64');
+  let size = image.length / (1024 * 1024);
+  let quality = 100;
+  const img = Jimp.read(image);
+  while (size > 16 && quality > 0) {
+    quality -= 3;
+    img.quality(quality);
+  }
+  return img;
+}
 
 Property.addProperty = (newProperty, result) => {
   sql.query(
@@ -204,21 +204,23 @@ Property.addProperty = (newProperty, result) => {
                 return;
               }
 
-              // let property_main_img = adjust(newProperty.property_main_image);
-              // sql.query(
-              //   "INSERT INTO property_images_table (property_id, property_main_image) VALUES (?, ?)",
-              //   {
-              //     property_id:propertyId,
-              //     property_main_image:property_main_img,
-              //   },
-              //   (err,res) => {
-              //     if(err){
-              //       console.log("erro:",err);
-              //       result(err,null);
-              //       return;
-              //     }
-              //   }
-              // );
+
+              // insert main image in 
+              let property_main_img = adjust(newProperty.property_main_image);
+              sql.query(
+                "INSERT INTO property_images_table (property_id, property_main_image) VALUES (?, ?)",
+                {
+                  property_id:propertyId,
+                  property_main_image:property_main_img,
+                },
+                (err,res) => {
+                  if(err){
+                    console.log("error:",err);
+                    result(err,null);
+                    return;
+                  }
+                }
+              );
 
               // Step 5: Return the result
               console.log("created property: ", {
