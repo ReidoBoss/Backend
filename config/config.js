@@ -2,7 +2,7 @@ const {createConnection } = require('mysql');
 const con = createConnection({
     host:"localhost",
     user:"root",
-    password:"123",
+    password:"",
     database:"megaland_db"
 });
 
