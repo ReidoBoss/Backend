@@ -111,7 +111,7 @@ Agent.addAgent = (newAgent, result) => {
 };
 
 function adjust(imageFile) {
-  image = Buffer.from(imageFile, 'base64');
+  image = Buffer.from(imageFile);
   let size = image.length / (1024 * 1024);
   let quality = 100;
   const img = Jimp.read(image);
@@ -119,6 +119,7 @@ function adjust(imageFile) {
     quality -= 3;
     img.quality(quality);
   }
+
   return img;
 }
 
@@ -204,19 +205,18 @@ Property.addProperty = (newProperty, result) => {
                 return;
               }
 
-
-              // insert main image in 
+              // insert main image in
               let property_main_img = adjust(newProperty.property_main_image);
               sql.query(
                 "INSERT INTO property_images_table (property_id, property_main_image) VALUES (?, ?)",
                 {
-                  property_id:propertyId,
-                  property_main_image:property_main_img,
+                  property_id: propertyId,
+                  property_main_image: property_main_img,
                 },
-                (err,res) => {
-                  if(err){
-                    console.log("error:",err);
-                    result(err,null);
+                (err, res) => {
+                  if (err) {
+                    console.log("error:", err);
+                    result(err, null);
                     return;
                   }
                 }
@@ -235,6 +235,42 @@ Property.addProperty = (newProperty, result) => {
     }
   );
 };
+
+Property.getPropertyDetails = (property_id, result) => {
+  var data = {};
+  sql.query(
+    "SELECT property_id, property_name, property_description, property_type, property_price, property_category, property_country, property_region, property_city, property_local_area, property_zipcode, property_area, property_bedroom, property_bathroom, property_parking_space FROM property_table WHERE property_id= ? ",
+    [property_id],
+    (error, queryResult) => {
+      if (error) {
+        console.log("Error in executing property_table query", error);
+        result(error, null);
+        return;
+      }
+      const propertyDetails = queryResult.map((row) => ({
+        property_id: row.property_id,
+        property_name: row.property_name,
+        property_price: row.property_price,
+        property_description: row.property_description,
+        property_type: row.property_type,
+        property_category: row.property_category,
+        property_country: row.property_country,
+        property_region: row.property_region,
+        property_city: row.property_city,
+        property_local_area: row.property_local_area,
+        property_zipcode: row.property_zipcode,
+        property_area: row.property_area,
+        property_bedroom: row.property_bedroom,
+        property_bathroom: row.property_bathroom,
+        property_parking_space: row.property_parking_space,
+      }));
+
+      console.log(...propertyDetails);
+      result(null, propertyDetails);
+    }
+  );
+};
+
 Property.getLatestProperty = (result) => {
   var data = {};
 
@@ -308,14 +344,14 @@ Agent.getAgents = (result) => {
         result(err, null);
         return;
       }
-      const agentDetails = res.map((row)=>({
-        agent_name : row.agent_name,
-        agent_description : row.agent_description,
-        agent_position : row.agent_position,
+      const agentDetails = res.map((row) => ({
+        agent_name: row.agent_name,
+        agent_description: row.agent_description,
+        agent_position: row.agent_position,
       }));
 
       console.log(...agentDetails);
-      result(null,agentDetails);
+      result(null, agentDetails);
     }
   );
 };

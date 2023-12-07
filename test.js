@@ -2,7 +2,7 @@
           <div class:"">Amenities:</div>
           <div class:"ml-2 flex flex-wrap gap-2">
             <mdicon
-              v-if:"attic : true"
+              v-if:" : true"
               class:""
               name:"home-roof"
               :width:"22"
@@ -119,7 +119,7 @@
           </div>
         </div>
 
-attic: boolean,
+: boolean,
 balcony: boolean,
 deck: boolean,
 fenced: boolean,
@@ -138,7 +138,7 @@ winecellar: boolean,
 
 
 
-:attic:"pro: perty.property_attic"
+::"pro: perty.property_"
         :balcony : "pro: perty.property_balcony"
         :deck : "pro: perty.property_deck"
         :fenced : "pro: perty.property_fenced_yard"

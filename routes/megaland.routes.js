@@ -7,5 +7,6 @@ module.exports = app => {
     router.post("/agents",agents.addAgent);
     router.get("/",properties.getLatestProperty);
     router.get("/getAgents",properties.getAgents);
+    router.get("/getPropertyDetails/:id",properties.getPropertyDetails);
     app.use('/api',router);
 };
