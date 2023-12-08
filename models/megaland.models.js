@@ -335,6 +335,70 @@ Property.getLatestProperty = (result) => {
   );
 };
 
+Property.getAllProperty = (result) => {
+  var data = {};
+
+  // Query for property_table
+  sql.query(
+    "SELECT property_name, property_price, property_bedroom, property_bathroom, property_area, property_city , property_local_area, property_type, property_category FROM property_table ORDER BY property_id DESC",
+    (error, queryResult) => {
+      if (error) {
+        console.log("Error in executing property_table query: ", error);
+        result(error, null);
+        return;
+      }
+
+      const propertyDetails = queryResult.map((row) => ({
+        property_name: row.property_name,
+        property_price: row.property_price,
+        property_bedroom: row.property_bedroom,
+        property_bathroom: row.property_bathroom,
+        property_area: row.property_area,
+        property_city: row.property_city,
+        property_local_area: row.property_local_area,
+        property_type: row.property_type,
+        property_category: row.property_category,
+      }));
+
+      data = { ...propertyDetails };
+
+      // Query for property_nearest_table
+      sql.query(
+        "SELECT * FROM property_nearest_table ORDER BY property_id DESC",
+        (error, nearestResult) => {
+          if (error) {
+            console.log(
+              "Error in executing property_nearest_table query: ",
+              error
+            );
+            result(error, null);
+            return;
+          }
+
+          // Merge nearest into propertyDetails
+          propertyDetails.forEach((property, index) => {
+            const nearestRow = nearestResult[index];
+            Object.assign(property, {
+              property_airport: nearestRow.property_airport,
+              property_busstand: nearestRow.property_busstand,
+              property_hospital: nearestRow.property_hospital,
+              property_patroltank: nearestRow.property_patroltank,
+              property_railway: nearestRow.property_railway,
+              property_shopping: nearestRow.property_shopping,
+              property_universities: nearestRow.property_universities,
+            });
+          });
+
+          // Return the object with propertyDetails
+          data.propertyDetails;
+          console.log(data);
+          result(null, data);
+        }
+      );
+    }
+  );
+};
+
 Agent.getAgents = (result) => {
   sql.query(
     "SELECT agent_name, agent_description,agent_position FROM agent_table",

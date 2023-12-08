@@ -125,6 +125,23 @@ exports.getLatestProperty = (req, res) => {
   });
 };
 
+exports.getAllProperty = (req, res) => {
+  if (!req.body) {
+    res.status(400).send({
+      message: "Content cannot be empty",
+    });
+    return;
+  }
+  Property.getAllProperty((err, properties) => {
+    if (err) {
+      return res.status(500).send({
+        message: err.message || "Some error occured",
+      });
+    }
+    res.send(properties);
+  });
+};
+
 exports.getPropertyDetails = (req, res) => {
   if (!req.body) {
     res.status(400).send({
