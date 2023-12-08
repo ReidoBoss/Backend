@@ -206,21 +206,21 @@ Property.addProperty = (newProperty, result) => {
               }
 
               // insert main image in
-              let property_main_img = adjust(newProperty.property_main_image);
-              sql.query(
-                "INSERT INTO property_images_table (property_id, property_main_image) VALUES (?, ?)",
-                {
-                  property_id: propertyId,
-                  property_main_image: property_main_img,
-                },
-                (err, res) => {
-                  if (err) {
-                    console.log("error:", err);
-                    result(err, null);
-                    return;
-                  }
-                }
-              );
+              // let property_main_img = adjust(newProperty.property_main_image);
+              // sql.query(
+              //   "INSERT INTO property_images_table (property_id, property_main_image) VALUES (?, ?)",
+              //   {
+              //     property_id: propertyId,
+              //     property_main_image: property_main_img,
+              //   },
+              //   (err, res) => {
+              //     if (err) {
+              //       console.log("error:", err);
+              //       result(err, null);
+              //       return;
+              //     }
+              //   }
+              // );
 
               // Step 5: Return the result
               console.log("created property: ", {
