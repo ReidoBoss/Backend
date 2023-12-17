@@ -1,15 +1,19 @@
-module.exports = app => {
-    const properties = require("../controllers/megaland.controllers.js");
-    const agents =require("../controllers/megaland.controllers.js");
-    var router = require("express").Router();
-
-    router.post("/properties",properties.addProperty);
-    router.post("/agents",agents.addAgent);
-    router.get("/",properties.getLatestProperty);
-    router.get("/search",properties.getAllProperty);
-    router.get("/getAgents",properties.getAgents);
-    router.get("/getPropertyDetails/:id",properties.getPropertyDetails);
-    app.use('/api',router);
+module.exports = (app) => {
+  
+  const propertiesController = require('../controllers/megaland.controllers.js');
+  const agentsController = require('../controllers/megaland.controllers.js');
+  const router = require('express').Router();
+  const multer = require('multer');
+  const storage = multer.memoryStorage(); 
+  const upload = multer({ storage: storage });
 
 
+  router.post('/addProperty', upload.single('image_data'), propertiesController.addNewProperty);
+  router.post("/agents", agentsController.addAgent);
+  router.get("/", propertiesController.getLatestProperty);
+  router.get("/all", propertiesController.getAllProperty);
+  router.get("/getAgents", propertiesController.getAgents);
+  router.get("/getPropertyDetails/:id", propertiesController.getPropertyDetails);
+
+  app.use('/api', router);
 };
