@@ -11,7 +11,7 @@ module.exports = (app) => {
   router.post('/addProperty', upload.single('image_data'), propertiesController.addNewProperty);
   router.post("/agents", agentsController.addAgent);
   router.get("/", propertiesController.getLatestProperty);
-  router.get("/all", propertiesController.getAllProperty);
+  router.get("/all/:page", propertiesController.getAllProperty);
   router.get("/getAgents", propertiesController.getAgents);
   router.get("/getPropertyDetails/:id", propertiesController.getPropertyDetails);
 

@@ -136,19 +136,13 @@ exports.getLatestProperty = (req, res) => {
 };
 
 exports.getAllProperty = (req, res) => {
-  if (!req.body) {
-    res.status(400).send({
-      message: "Content cannot be empty",
-    });
-    return;
-  }
-  Property.getAllProperty((err, properties) => {
-    if (err) {
-      return res.status(500).send({
-        message: err.message || "Some error occured",
-      });
+  const page = req.params.page || 1; 
+  Property.getAllProperty(page, (error, data) => {
+    if (error) {
+      console.error("Error:", error);
+      return res.status(500).json({ error: "Internal Server Error" });
     }
-    res.send(properties);
+    res.json(data);
   });
 };
 

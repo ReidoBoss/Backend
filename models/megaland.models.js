@@ -239,6 +239,7 @@ Property.getPropertyDetails = (property_id, result) => {
         result(error, null);
         return;
       }
+      console.log(property_id,"hello!");
       const propertyDetails = queryResult.map((row) => ({
         property_id: row.property_id,
         property_name: row.property_name,
@@ -260,7 +261,7 @@ Property.getPropertyDetails = (property_id, result) => {
         
       }));
 
-      console.log(...propertyDetails);
+      // console.log(...propertyDetails);
       result(null, propertyDetails);
     }
   );
@@ -330,11 +331,13 @@ Property.getLatestProperty = (result) => {
   );
 };
 
-Property.getAllProperty = (result) => {
-  var data = {};
+Property.getAllProperty = (page, result) => {
+  const perPage = 9;
+  const offset = (page - 1) * perPage;
 
   sql.query(
-    "SELECT property_id, property_name, property_price, property_bedroom, property_bathroom, property_area, property_city , property_local_area, property_type, property_category, image_data FROM property_table ORDER BY property_id DESC",
+    "SELECT property_id, property_name, property_price, property_bedroom, property_bathroom, property_area, property_city, property_local_area, property_type, property_category, image_data FROM property_table ORDER BY property_id DESC LIMIT ?, ?",
+    [offset, perPage],
     (error, queryResult) => {
       if (error) {
         console.log("Error in executing property_table query: ", error);
@@ -354,26 +357,17 @@ Property.getAllProperty = (result) => {
         property_type: row.property_type,
         property_category: row.property_category,
         image_data: row.image_data,
-
-
       }));
 
-      data = { ...propertyDetails };
-
-      // Query for property_nearest_table
       sql.query(
         "SELECT * FROM property_nearest_table ORDER BY property_id DESC",
         (error, nearestResult) => {
           if (error) {
-            console.log(
-              "Error in executing property_nearest_table query: ",
-              error
-            );
+            console.log("Error in executing property_nearest_table query: ", error);
             result(error, null);
             return;
           }
 
-          // Merge nearest into propertyDetails
           propertyDetails.forEach((property, index) => {
             const nearestRow = nearestResult[index];
             Object.assign(property, {
@@ -387,10 +381,7 @@ Property.getAllProperty = (result) => {
             });
           });
 
-          // Return the object with propertyDetails
-          data.propertyDetails;
-          console.log(data);
-          result(null, data);
+          result(null, { propertyDetails, currentPage: page });
         }
       );
     }
