@@ -14,6 +14,8 @@ module.exports = (app) => {
   router.get("/all/:page", propertiesController.getAllProperty);
   router.get("/getAgents", propertiesController.getAgents);
   router.get("/getPropertyDetails/:id", propertiesController.getPropertyDetails);
+  router.get("/getPropertyImage/:id", propertiesController.getPropertyImage);
+
 
   app.use('/api', router);
 };

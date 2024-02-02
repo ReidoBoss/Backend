@@ -164,6 +164,24 @@ exports.getPropertyDetails = (req, res) => {
   });
 };
 
+exports.getPropertyImage = (req, res) => {
+  if (!req.body) {
+    res.status(400).send({
+      message: "Content cannot be empty",
+    });
+    return;
+  }
+  console.log(req.body);
+  Property.getPropertyImage(req.params.id, (err, properties) => {
+    if (err) {
+      return res.status(500).send({
+        message: err.message || "Some error occured",
+      });
+    }
+    res.send(properties);
+  });
+};
+
 exports.getAgents = (req, res) => {
   if (!req.body) {
     res.status(400).send({

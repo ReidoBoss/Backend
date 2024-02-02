@@ -150,7 +150,7 @@ Property.addNewProperty = (newProperty, result) => {
         property_room_count: newProperty.property_room_count,
         property_parking_space: newProperty.property_parking_space,
         property_enable: newProperty.property_enable,
-        image_data: newProperty.image_data,
+
       },
       (err, res) => {
         if (err) {
@@ -160,6 +160,23 @@ Property.addNewProperty = (newProperty, result) => {
         }
 
         const propertyId = res.insertId;
+
+        sql.query(
+          "INSERT INTO property_images SET ?",
+          {
+            property_id: propertyId,
+            image_data: newProperty.image_data
+          },
+          (err, res) => {
+            if (err) {
+              console.log("error: ", err);
+              result(err, null);
+              return;
+            }
+
+            console.log("oten",res);
+          }
+        );
 
         sql.query(
           "INSERT INTO property_amenities_table SET ?",
@@ -231,7 +248,7 @@ module.exports = Property;
 Property.getPropertyDetails = (property_id, result) => {
   var data = {};
   sql.query(
-    "SELECT property_id, property_name, property_description, property_type, property_price, property_category, property_country, property_region, property_city, property_local_area, property_zipcode, property_area, property_bedroom, property_bathroom, property_parking_space, image_data FROM property_table WHERE property_id= ? ",
+    "SELECT property_id, property_name, property_description, property_type, property_price, property_category, property_country, property_region, property_city, property_local_area, property_zipcode, property_area, property_bedroom, property_bathroom, property_parking_space FROM property_table WHERE property_id= ?",
     [property_id],
     (error, queryResult) => {
       if (error) {
@@ -256,12 +273,35 @@ Property.getPropertyDetails = (property_id, result) => {
         property_bedroom: row.property_bedroom,
         property_bathroom: row.property_bathroom,
         property_parking_space: row.property_parking_space,
-        image_data: row.image_data,
 
         
       }));
-
+      
       // console.log(...propertyDetails);
+      result(null, propertyDetails);
+    }
+  );
+};
+
+Property.getPropertyImage = (property_id, result) => {
+  var data = {};
+  sql.query(
+    "SELECT  property_id, image_data FROM property_images WHERE property_id= ? ",
+    [property_id],
+    (error, queryResult) => {
+      if (error) {
+        console.log("Error in executing property_table query", error);
+        result(error, null);
+        return;
+      }
+      const propertyDetails = queryResult.map((row) => ({
+        property_id: row.property_id,
+        image_data: row.image_data,
+        
+      }));
+
+      console.log(property_id,"yeah");
+
       result(null, propertyDetails);
     }
   );
@@ -271,7 +311,7 @@ Property.getLatestProperty = (result) => {
   var data = {};
 
   sql.query(
-    "SELECT property_id, property_name, property_price, property_bedroom, property_bathroom, property_area, property_city , property_local_area, property_type, property_category, image_data FROM property_table ORDER BY property_id DESC LIMIT 6",
+    "SELECT property_id, property_name, property_price, property_bedroom, property_bathroom, property_area, property_city , property_local_area, property_type, property_category FROM property_table ORDER BY property_id DESC LIMIT 6",
     (error, queryResult) => {
       if (error) {
         console.log("Error in executing property_table query: ", error);
@@ -290,7 +330,6 @@ Property.getLatestProperty = (result) => {
         property_local_area: row.property_local_area,
         property_type: row.property_type,
         property_category: row.property_category,
-        image_data: row.image_data,
 
 
       }));
@@ -336,7 +375,7 @@ Property.getAllProperty = (page, result) => {
   const offset = (page - 1) * perPage;
 
   sql.query(
-    "SELECT property_id, property_name, property_price, property_bedroom, property_bathroom, property_area, property_city, property_local_area, property_type, property_category, image_data FROM property_table ORDER BY property_id DESC LIMIT ?, ?",
+    "SELECT property_id, property_name, property_price, property_bedroom, property_bathroom, property_area, property_city, property_local_area, property_type, property_category FROM property_table ORDER BY property_id DESC LIMIT ?, ?",
     [offset, perPage],
     (error, queryResult) => {
       if (error) {
@@ -356,7 +395,6 @@ Property.getAllProperty = (page, result) => {
         property_local_area: row.property_local_area,
         property_type: row.property_type,
         property_category: row.property_category,
-        image_data: row.image_data,
       }));
 
       sql.query(
