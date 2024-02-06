@@ -6,7 +6,7 @@ const cors = require('cors');
 const app = express();
 
 var corsOptions = {
-    origin: "http://"
+    origin: "http://megaland.vercel.app"
 };
 
 app.use(cors(corsOptions));
